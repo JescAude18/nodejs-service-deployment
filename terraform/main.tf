@@ -16,6 +16,6 @@ resource "oci_core_instance" "roadmapsh_vm2" {
     }
 
     metadata = {
-        ssh_public_key = var.ssh_public_key
+        ssh_authorized_keys = var.ssh_public_key
     }
 }
