@@ -5,3 +5,4 @@
   hosts: oci_server
   roles:
     - base
+    - app
