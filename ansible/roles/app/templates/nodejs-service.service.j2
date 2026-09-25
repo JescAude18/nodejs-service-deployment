@@ -1,0 +1,13 @@
+[Unit]
+Description= My Node.js service
+After=network.target
+
+[Service]
+Type=simple
+User={{ user_service }}
+WorkingDirectory={{ working_directory }}
+ExecStart={{ start_cmd }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
