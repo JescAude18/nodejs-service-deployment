@@ -1,0 +1,24 @@
+---
+
+- name: Git Checkout
+  ansible.builtin.git:
+    repo: 'https://github.com/JescAude18/my-nodejs-service.git'
+    dest: /var/www/my-nodejs-service
+
+- name: Install Dependencies
+  ansible.builtin.command:
+    cmd: npm install
+  args:
+    chdir: /var/www/my-nodejs-service
+
+- name: Copy nodejs-service.service template to server
+  ansible.builtin.template:
+    src: nodejs-service.service.j2
+    dest: /etc/systemd/system/nodejs-service.service
+
+- name: Handle nodejs service
+  ansible.builtin.systemd_service:
+    name: nodejs-service.service
+    state: started
+    daemon_reload: true
+    enabled: true
