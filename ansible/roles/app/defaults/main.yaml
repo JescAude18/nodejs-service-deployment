@@ -1,0 +1,7 @@
+---
+
+working_directory: /var/www/my-nodejs-service
+
+start_cmd: /usr/bin/npm start
+
+user_service: jescaude
