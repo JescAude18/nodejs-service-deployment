@@ -1,8 +1,8 @@
 ---
 
-- name: base
+- name: Calling all roles setup
   become: true
-  hosts: oci_server
+  hosts: web_servers
   roles:
     - base
     - app
