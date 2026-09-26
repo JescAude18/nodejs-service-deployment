@@ -1,0 +1,9 @@
+---
+
+nginx_port: 80
+
+nginx_server_name: _
+
+nodejs_host: 127.0.0.1
+
+nodejs_port: 3000
