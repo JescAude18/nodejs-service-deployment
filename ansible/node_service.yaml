@@ -1,0 +1,9 @@
+---
+
+- name: base
+  become: true
+  hosts: oci_server
+  roles:
+    - base
+    - app
+    - nginx
