@@ -1,0 +1,39 @@
+---
+
+name: nodejs-service-deployment-workflow with Ansible
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+
+    env:
+      ANSIBLE_HOST_KEY_CHECKING: "False"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Setup SSH key to connect to VM
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Create Ansible become password file
+        run: |
+          echo "${{ secrets.SUDO_PASSWORD }}" > /tmp/become_password
+          chmod 600 /tmp/become_password
+
+      - name: Run playbook to deploy nodejs service
+        run: |
+          ansible-playbook ansible/node_service.yaml -i ansible/inventory.ini --become-password-file /tmp/become_password
