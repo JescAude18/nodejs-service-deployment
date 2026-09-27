@@ -2,7 +2,7 @@
 
 - name: Calling all roles setup
   become: true
-  hosts: web_servers
+  hosts: webservers
   roles:
     - base
     - app
