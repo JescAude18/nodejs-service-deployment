@@ -66,10 +66,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: 
-            SUDO_PASSWORD
+            SUDO_PASSWORD,USER
           script: |
             printf '%s\n' "$SUDO_PASSWORD" | sudo -S mkdir -p /var/www/my-nodejs-service
-            sudo chown -R "$USER":"$USER" /var/www/my-nodejs-service
+            printf '%s\n' "$SUDO_PASSWORD" | sudo -S chown -R "$USER":"$USER" /var/www/my-nodejs-service
 
       - name: Update nodejs service files on the VM
         run: |
