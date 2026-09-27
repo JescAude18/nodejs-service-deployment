@@ -1,4 +1,36 @@
 ---
+# name: nodejs-service-deployment-workflow
+# on:
+#   workflow_dispatch
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-24.04
+#     env:
+#       ANSIBLE_HOST_KEY_CHECKING: "False"
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v5
+
+#       - name: Install Ansible
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get install -y ansible
+
+#       - name: Setup SSH key to connect to VM
+#         uses: webfactory/ssh-agent@v0.10.0
+#         with:
+#           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+#       - name: Create Ansible become password file
+#         run: |
+#           echo "${{ secrets.SUDO_PASSWORD }}" > /tmp/become_password
+#           chmod 600 /tmp/become_password
+
+#       - name: Run playbook to deploy nodejs service
+#         run: |
+#           ansible-playbook ansible/node_service.yaml -i ansible/inventory.ini --become-password-file /tmp/become_password
+
 name: nodejs-service-deployment-workflow
 on:
   workflow_dispatch
@@ -12,21 +44,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Install Ansible
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
+      - name: Checkout Node.js application
+        uses: actions/checkout@v5
+        with:
+          repository: JescAude18/my-nodejs-service
+          path: my-nodejs-service
 
       - name: Setup SSH key to connect to VM
         uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Create Ansible become password file
-        run: |
-          echo "${{ secrets.SUDO_PASSWORD }}" > /tmp/become_password
-          chmod 600 /tmp/become_password
+      - name: Create application directory
+        uses: appleboy/ssh-action@v1
+        env:
+          SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: 
+            SUDO_PASSWORD
+          script: |
+            printf '%s\n' "$SUDO_PASSWORD" | sudo -S mkdir -p /var/www/my-nodejs-service
 
-      - name: Run playbook to deploy nodejs service
+      - name: Update nodejs service files on the VM
         run: |
-          ansible-playbook ansible/node_service.yaml -i ansible/inventory.ini --become-password-file /tmp/become_password
+          rsync -a -v -z  ./my-nodejs-service/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/var/www/my-nodejs-service/
+
+      - name: Run deployment commands on VM
+        uses: appleboy/ssh-action@v1
+        env:
+          SUDO_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: 
+            SUDO_PASSWORD
+          script: |
+            cd /var/www/my-nodejs-service/
+            npm install
+            printf '%s\n' "$SUDO_PASSWORD" | sudo -S systemctl restart nodejs-service.service
