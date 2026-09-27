@@ -1,11 +1,6 @@
 # Node.js Service Deployment
 
-This repository provisions an Oracle Cloud Infrastructure (OCI) compute instance and deploys a Node.js service to it. It implements the [roadmap.sh Node.js Service Deployment project](https://roadmap.sh/projects/nodejs-service-deployment), using OCI instead of DigitalOcean for the infrastructure layer.
-
-The repository contains two GitHub Actions deployment approaches:
-
-- Ansible configures the server, installs the application, configures systemd, and sets up Nginx.
-- SSH and `rsync` copy the application from its separate repository and restart the systemd service.
+This is a learning project focused on infrastructure as code, configuration management, and automated deployment of a Node.js service. The deployed application is maintained in the separate [`my-nodejs-service`](https://github.com/JescAude18/my-nodejs-service) repository.
 
 ## Table of Contents
 
@@ -22,9 +17,16 @@ The repository contains two GitHub Actions deployment approaches:
 - [Author](#author)
 - [License](#license)
 
-## About
+### About
 
-This is a learning project focused on infrastructure as code, configuration management, and automated deployment of a Node.js service. The deployed application is maintained in the separate [`my-nodejs-service`](https://github.com/JescAude18/my-nodejs-service) repository.
+This repository provisions an Oracle Cloud Infrastructure (OCI) compute instance and deploys a Node.js service to it.
+
+The repository contains two GitHub Actions deployment approaches:
+
+- Ansible configures the server, installs the application, configures systemd, and sets up Nginx.
+- SSH and `rsync` copy the application from its separate repository and restart the systemd service.
+
+**Project Reference:** [roadmap.sh/projects/nodejs-service-deployment](https://roadmap.sh/projects/nodejs-service-deployment)
 
 ### Features
 
@@ -42,8 +44,8 @@ This is a learning project focused on infrastructure as code, configuration mana
 ```text
 .
 ├── .github/workflows/
-│   ├── deploy_with_ansible.yaml   # Full server and application deployment
-│   └── deploy_with_ssh.yaml       # Application-only SSH/rsync deployment
+│   ├── deploy_with_ansible.yaml    # Workflow for Ansible deployment
+│   └── deploy_with_ssh.yaml        # Workflow for SSH/rsync deployment
 ├── ansible/
 │   ├── inventory.ini               # Target OCI server
 │   ├── node_service.yaml           # Main playbook
@@ -71,7 +73,7 @@ This is a learning project focused on infrastructure as code, configuration mana
 - A separate Node.js application repository containing a working `npm start` script.
 - A GitHub repository with Actions enabled.
 
-The Ansible defaults currently target user `jescaude`, application directory `/var/www/my-nodejs-service`, port `3000`, and Nginx port `80`. Update these values for another server.
+NB: You can use any other provider to setup a compute instance: AWS, DigitalOcean (mentionned by the project)
 
 ### Installation & Usage
 
@@ -96,7 +98,8 @@ Update `ansible/inventory.ini` with the instance public IP and SSH user, then ru
 ```bash
 ansible-playbook ansible/node_service.yaml \\
 -i ansible/inventory.ini \\
---become-password-file /path/to/become_password
+--become-password-file /path/to/become_password \\
+--private-key=/path/to/private_key
 ```
 
 The playbook requires the target user's sudo password for privileged tasks. It clones `my-nodejs-service`, runs `npm install`, creates and enables `nodejs-service.service`, installs Nginx, and starts the reverse proxy.
@@ -172,8 +175,14 @@ Never commit private keys, OCI API credentials, sudo passwords, or other secrets
 
 ### Author
 
-Created by [JescAude18](https://github.com/JescAude18).
+**Created by**: Jessica MOUSSOUGAN
+
+**Email**: [jessicamoussougan@gmail.com](mailto:jessicamoussougan@gmail.com)
+
+**GitHub**: [@JescAude18](https://github.com/JescAude18)
 
 ### License
 
-No license file is currently included in this repository. All rights remain with the author unless a license is added.
+No license yet.
+
+This project is currently for personal training and learning.
