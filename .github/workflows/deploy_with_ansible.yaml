@@ -30,10 +30,17 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Create Ansible become password file
+        env:
+            ANSIBLE_BECOME_PASSWORD: ${{ secrets.SUDO_PASSWORD }}
         run: |
-          echo "${{ secrets.SUDO_PASSWORD }}" > /tmp/become_password
+          printf '%s' "$ANSIBLE_BECOME_PASSWORD" > /tmp/become_password
           chmod 600 /tmp/become_password
 
       - name: Run playbook to deploy nodejs service
         run: |
           ansible-playbook ansible/node_service.yaml -i ansible/inventory.ini --become-password-file /tmp/become_password
+
+      - name: Remove temporary become password file
+        if: always()
+        run: |
+            rm -rf /tmp/become_password
